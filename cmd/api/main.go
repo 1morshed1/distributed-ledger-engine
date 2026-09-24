@@ -10,6 +10,7 @@ import (
 	db "github.com/1morshed1/distributed-ledger-engine/internal/db"
 	"github.com/1morshed1/distributed-ledger-engine/internal/events"
 	"github.com/1morshed1/distributed-ledger-engine/internal/gapi"
+	"github.com/1morshed1/distributed-ledger-engine/internal/observability"
 	"github.com/1morshed1/distributed-ledger-engine/internal/pb"
 	"github.com/1morshed1/distributed-ledger-engine/internal/util"
 	"github.com/1morshed1/distributed-ledger-engine/internal/worker"
@@ -23,6 +24,16 @@ func main() {
 	config, err := util.LoadConfig(".")
 	if err != nil {
 		log.Fatalf("cannot load config: %v", err)
+	}
+
+	observability.InitLogging(config.Environment)
+
+	// Distributed tracing -> Jaeger (OTLP). No-op if OTLP_ENDPOINT is empty.
+	shutdownTracing, err := observability.InitTracing(context.Background(), "ledger-api", config.OTLPEndpoint)
+	if err != nil {
+		log.Printf("warning: tracing init failed: %v", err)
+	} else {
+		defer func() { _ = shutdownTracing(context.Background()) }()
 	}
 
 	connPool, err := pgxpool.New(context.Background(), config.DBSource)

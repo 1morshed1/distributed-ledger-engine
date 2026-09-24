@@ -76,7 +76,7 @@ services:
       initialBuckets: ledger-reports
       # s3mock needs path-style access (handled in the boto3 client too).
     ports:
-      - "9090:9090"   # S3 API (http)
+      - "9095:9090"   # S3 API (http); host 9095 to leave 9090 for the app's gRPC
 
   # Airflow metadata DB (separate from the ledger DB on purpose).
   airflow-postgres:
@@ -149,6 +149,68 @@ services:
     command: scheduler
     restart: unless-stopped
 
+  # ---- Observability stack (Phase 5) --------------------------------------
+  # Jaeger: distributed tracing UI + OTLP collector. The Go API exports spans
+  # to localhost:4318 (OTLP/HTTP).
+  jaeger:
+    image: jaegertracing/all-in-one:1.60
+    container_name: ledger-jaeger
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports:
+      - "16686:16686"   # Jaeger UI
+      - "4318:4318"     # OTLP HTTP
+      - "4317:4317"     # OTLP gRPC
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    container_name: ledger-prometheus
+    command: ["--config.file=/etc/prometheus/prometheus.yml"]
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9091:9090"     # UI (9090 used by s3mock)
+    extra_hosts:
+      - "host.docker.internal:host-gateway"   # so it can scrape the host-run API
+
+  grafana:
+    image: grafana/grafana:11.3.0
+    container_name: ledger-grafana
+    depends_on:
+      - prometheus
+      - loki
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+    volumes:
+      - ./observability/grafana-datasources.yml:/etc/grafana/provisioning/datasources/ds.yml:ro
+      - grafanadata:/var/lib/grafana
+    ports:
+      - "3000:3000"
+
+  loki:
+    image: grafana/loki:3.2.1
+    container_name: ledger-loki
+    command: ["-config.file=/etc/loki/loki-config.yml"]
+    volumes:
+      - ./observability/loki-config.yml:/etc/loki/loki-config.yml:ro
+      - lokidata:/loki
+    ports:
+      - "3100:3100"
+
+  promtail:
+    image: grafana/promtail:3.2.1
+    container_name: ledger-promtail
+    depends_on:
+      - loki
+    command: ["-config.file=/etc/promtail/promtail-config.yml"]
+    volumes:
+      - ./observability/promtail-config.yml:/etc/promtail/promtail-config.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
 volumes:
   pgdata:
   airflowpgdata:
+  grafanadata:
+  lokidata:

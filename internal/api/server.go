@@ -5,12 +5,14 @@ import (
 
 	"github.com/1morshed1/distributed-ledger-engine/internal/cache"
 	db "github.com/1morshed1/distributed-ledger-engine/internal/db"
+	"github.com/1morshed1/distributed-ledger-engine/internal/observability"
 	"github.com/1morshed1/distributed-ledger-engine/internal/token"
 	"github.com/1morshed1/distributed-ledger-engine/internal/util"
 	"github.com/1morshed1/distributed-ledger-engine/internal/worker"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
 
 // Server holds everything HTTP handlers need: config, the DB store, the balance
@@ -43,6 +45,14 @@ func NewServer(config util.Config, store db.Store, balanceCache cache.BalanceCac
 
 func (server *Server) setupRouter() {
 	router := gin.Default()
+
+	// Observability middleware: OTel tracing span per request + Prometheus metrics.
+	router.Use(otelgin.Middleware("ledger-api"))
+	router.Use(observability.GinMetrics())
+
+	// Operational endpoints (unauthenticated).
+	router.GET("/metrics", observability.MetricsHandler())
+	router.GET("/healthz", func(c *gin.Context) { c.JSON(200, gin.H{"status": "ok"}) })
 
 	// Public routes.
 	router.POST("/api/v1/users", server.createUser)

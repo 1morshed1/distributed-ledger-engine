@@ -11,6 +11,7 @@ import (
 	"github.com/1morshed1/distributed-ledger-engine/internal/worker"
 	"github.com/google/uuid"
 	"github.com/hibiken/asynq"
+	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -109,6 +110,7 @@ func (s *Server) Transfer(ctx context.Context, req *pb.TransferRequest) (*pb.Tra
 				ToAccountID:   result.Transfer.ToAccountID,
 				Amount:        result.Transfer.Amount,
 				Currency:      req.GetCurrency(),
+				TraceID:       trace.SpanContextFromContext(ctx).TraceID().String(),
 				OccurredAt:    time.Now(),
 			},
 			asynq.MaxRetry(5),

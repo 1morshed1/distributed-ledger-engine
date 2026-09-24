@@ -1,0 +1,16 @@
+global:
+  scrape_interval: 10s
+  evaluation_interval: 10s
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # The Go API runs on the host (go run / make server). host.docker.internal is
+  # mapped to the host gateway via extra_hosts in docker-compose. When the API is
+  # containerized (Phase 5 k8s), point this at the pod/service instead.
+  - job_name: ledger-api
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["host.docker.internal:8080"]

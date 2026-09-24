@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/hibiken/asynq"
+	"go.opentelemetry.io/otel/trace"
 )
 
 const idempotencyHeaderKey = "Idempotency-Key"
@@ -115,6 +116,7 @@ func (server *Server) createTransfer(ctx *gin.Context) {
 				ToAccountID:   result.Transfer.ToAccountID,
 				Amount:        result.Transfer.Amount,
 				Currency:      req.Currency,
+				TraceID:       trace.SpanContextFromContext(ctx.Request.Context()).TraceID().String(),
 				OccurredAt:    time.Now(),
 			},
 			asynq.MaxRetry(5),

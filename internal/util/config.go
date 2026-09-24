@@ -14,6 +14,7 @@ type Config struct {
 	RedisAddress         string        `mapstructure:"REDIS_ADDRESS"`
 	KafkaBrokers         string        `mapstructure:"KAFKA_BROKERS"` // comma-separated
 	KafkaTopicTxEvents   string        `mapstructure:"KAFKA_TOPIC_TRANSACTION_EVENTS"`
+	OTLPEndpoint         string        `mapstructure:"OTLP_ENDPOINT"` // host:port of the OTLP/HTTP collector (Jaeger)
 	HTTPServerAddress    string        `mapstructure:"HTTP_SERVER_ADDRESS"`
 	GRPCServerAddress    string        `mapstructure:"GRPC_SERVER_ADDRESS"`
 	TokenSymmetricKey    string        `mapstructure:"TOKEN_SYMMETRIC_KEY"`
