@@ -1,0 +1,15 @@
+# binaries
+/bin/
+*.exe
+
+# go
+vendor/
+
+# local overrides / secrets (app.env is committed for dev; real secrets never are)
+*.local.env
+.env
+
+# editor / os
+.idea/
+.vscode/
+.DS_Store
