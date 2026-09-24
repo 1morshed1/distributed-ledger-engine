@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	"github.com/1morshed1/distributed-ledger-engine/internal/events"
 	"github.com/hibiken/asynq"
 )
 
@@ -22,10 +23,11 @@ type TaskProcessor interface {
 }
 
 type RedisTaskProcessor struct {
-	server *asynq.Server
+	server    *asynq.Server
+	publisher events.Publisher
 }
 
-func NewRedisTaskProcessor(redisOpt asynq.RedisClientOpt) TaskProcessor {
+func NewRedisTaskProcessor(redisOpt asynq.RedisClientOpt, publisher events.Publisher) TaskProcessor {
 	server := asynq.NewServer(redisOpt, asynq.Config{
 		Queues: map[string]int{
 			QueueCritical: 10, // 10x more likely to be polled than default
@@ -35,7 +37,7 @@ func NewRedisTaskProcessor(redisOpt asynq.RedisClientOpt) TaskProcessor {
 			log.Printf("task failed type=%s error=%v", task.Type(), err)
 		}),
 	})
-	return &RedisTaskProcessor{server: server}
+	return &RedisTaskProcessor{server: server, publisher: publisher}
 }
 
 // Start registers handlers and begins processing. Non-blocking (asynq runs its
@@ -43,6 +45,7 @@ func NewRedisTaskProcessor(redisOpt asynq.RedisClientOpt) TaskProcessor {
 func (p *RedisTaskProcessor) Start() error {
 	mux := asynq.NewServeMux()
 	mux.HandleFunc(TaskTransferNotification, p.ProcessTaskTransferNotification)
+	mux.HandleFunc(TaskPublishTransferEvent, p.ProcessTaskPublishTransferEvent)
 	return p.server.Start(mux)
 }
 

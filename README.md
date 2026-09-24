@@ -13,8 +13,8 @@ Built in phases (see [`plan.md`](plan.md)). **Phase 1 (core ledger) is done.**
 |-------|---------------------------------------------------|-------|
 | 1     | Go ledger: Postgres, transfers, auth, REST API    | ✅ done |
 | 1b    | gRPC service, Redis cache, Asynq async tasks       | ✅ done |
-| 2     | Kafka event stream                                 | ⬜ next |
-| 3     | Spark Structured Streaming fraud detection (PySpark)| ⬜ |
+| 2     | Kafka event stream                                 | ✅ done |
+| 3     | Spark Structured Streaming fraud detection (PySpark)| ⬜ next |
 | 4     | Airflow nightly reconciliation + monthly rollup    | ⬜ |
 | 5     | Terraform + Kubernetes + CI/CD (local-first)       | ⬜ |
 
@@ -113,6 +113,7 @@ docs/phase-1/         # teaching write-ups (read these!)
 3. [`docs/phase-1/03-api-and-auth.md`](docs/phase-1/03-api-and-auth.md) — REST API, PASETO auth, error → status mapping
 4. [`docs/phase-1/04-grpc.md`](docs/phase-1/04-grpc.md) — gRPC LedgerService, protobuf codegen, status codes
 5. [`docs/phase-1/05-async-tasks.md`](docs/phase-1/05-async-tasks.md) — Asynq queue, retries, priorities
+6. [`docs/phase-2/01-kafka-events.md`](docs/phase-2/01-kafka-events.md) — Kafka event stream, protobuf schema, producer guarantees
 
 ## Testing
 

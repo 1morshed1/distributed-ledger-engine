@@ -3,6 +3,7 @@ package gapi
 import (
 	"context"
 	"errors"
+	"time"
 
 	db "github.com/1morshed1/distributed-ledger-engine/internal/db"
 	"github.com/1morshed1/distributed-ledger-engine/internal/pb"
@@ -99,6 +100,18 @@ func (s *Server) Transfer(ctx context.Context, req *pb.TransferRequest) (*pb.Tra
 				Amount:        result.Transfer.Amount,
 			},
 			asynq.MaxRetry(3),
+			asynq.Queue(worker.QueueCritical),
+		)
+		_ = s.taskDistributor.DistributeTaskPublishTransferEvent(ctx,
+			&worker.PublishTransferEventPayload{
+				TransferID:    result.Transfer.ID,
+				FromAccountID: result.Transfer.FromAccountID,
+				ToAccountID:   result.Transfer.ToAccountID,
+				Amount:        result.Transfer.Amount,
+				Currency:      req.GetCurrency(),
+				OccurredAt:    time.Now(),
+			},
+			asynq.MaxRetry(5),
 			asynq.Queue(worker.QueueCritical),
 		)
 	}

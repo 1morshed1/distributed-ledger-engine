@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package ledger.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/1morshed1/distributed-ledger-engine/internal/pb;pb";
+
+// TransactionEvent is what the ledger publishes to Kafka after every completed
+// transfer. Protobuf (not raw JSON) gives a compact, versioned, schema-checked
+// payload that Spark can decode reliably.
+message TransactionEvent {
+  string event_id = 1;                          // uuid v4, unique per event
+  string event_type = 2;                        // e.g. "TRANSFER_COMPLETED"
+  google.protobuf.Timestamp timestamp = 3;
+  TransferPayload payload = 4;
+  EventMetadata metadata = 5;
+}
+
+message TransferPayload {
+  int64 transfer_id = 1;
+  int64 from_account_id = 2;
+  int64 to_account_id = 3;
+  int64 amount = 4;                             // smallest unit (cents)
+  string currency = 5;
+}
+
+message EventMetadata {
+  string source_service = 1;                    // "ledger-api"
+  string trace_id = 2;                          // ties event to the originating request
+  int32 schema_version = 3;
+}

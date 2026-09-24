@@ -15,6 +15,11 @@ type TaskDistributor interface {
 		payload *TransferNotificationPayload,
 		opts ...asynq.Option,
 	) error
+	DistributeTaskPublishTransferEvent(
+		ctx context.Context,
+		payload *PublishTransferEventPayload,
+		opts ...asynq.Option,
+	) error
 }
 
 // RedisTaskDistributor is the Asynq-backed implementation. Asynq stores the queue

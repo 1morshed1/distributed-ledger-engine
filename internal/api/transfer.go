@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	db "github.com/1morshed1/distributed-ledger-engine/internal/db"
 	"github.com/1morshed1/distributed-ledger-engine/internal/token"
@@ -103,6 +104,20 @@ func (server *Server) createTransfer(ctx *gin.Context) {
 				Amount:        result.Transfer.Amount,
 			},
 			asynq.MaxRetry(3),
+			asynq.Queue(worker.QueueCritical),
+		)
+
+		// Publish the completed transfer to Kafka (via the queue for retries).
+		_ = server.taskDistributor.DistributeTaskPublishTransferEvent(ctx,
+			&worker.PublishTransferEventPayload{
+				TransferID:    result.Transfer.ID,
+				FromAccountID: result.Transfer.FromAccountID,
+				ToAccountID:   result.Transfer.ToAccountID,
+				Amount:        result.Transfer.Amount,
+				Currency:      req.Currency,
+				OccurredAt:    time.Now(),
+			},
+			asynq.MaxRetry(5),
 			asynq.Queue(worker.QueueCritical),
 		)
 	}

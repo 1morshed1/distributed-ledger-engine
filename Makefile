@@ -32,7 +32,7 @@ proto:         ## regenerate gRPC/protobuf code into internal/pb
 	protoc --proto_path=proto --proto_path=$(HOME)/.local/include \
 		--go_out=. --go_opt=module=$(MODULE) \
 		--go-grpc_out=. --go-grpc_opt=module=$(MODULE) \
-		proto/ledger.proto
+		proto/ledger.proto proto/events.proto
 
 test:          ## run tests with coverage
 	go test -v -cover ./...

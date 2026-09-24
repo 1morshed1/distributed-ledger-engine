@@ -8,6 +8,7 @@ import (
 	"github.com/1morshed1/distributed-ledger-engine/internal/api"
 	"github.com/1morshed1/distributed-ledger-engine/internal/cache"
 	db "github.com/1morshed1/distributed-ledger-engine/internal/db"
+	"github.com/1morshed1/distributed-ledger-engine/internal/events"
 	"github.com/1morshed1/distributed-ledger-engine/internal/gapi"
 	"github.com/1morshed1/distributed-ledger-engine/internal/pb"
 	"github.com/1morshed1/distributed-ledger-engine/internal/util"
@@ -38,18 +39,25 @@ func main() {
 	}
 	defer balanceCache.Close()
 
+	// Kafka publisher for the transaction-events stream.
+	publisher := events.NewKafkaPublisher(config.KafkaBrokers, config.KafkaTopicTxEvents)
+	defer publisher.Close()
+	if err := publisher.EnsureTopic(3); err != nil {
+		log.Printf("warning: could not ensure kafka topic (will rely on auto-create): %v", err)
+	}
+
 	// Asynq shares the same Redis. Distributor enqueues; processor consumes.
 	redisOpt := asynq.RedisClientOpt{Addr: config.RedisAddress}
 	taskDistributor := worker.NewRedisTaskDistributor(redisOpt)
-	go runTaskProcessor(redisOpt)
+	go runTaskProcessor(redisOpt, publisher)
 
 	// gRPC server runs in its own goroutine; HTTP server blocks main.
 	go runGRPCServer(config, store, balanceCache, taskDistributor)
 	runHTTPServer(config, store, balanceCache, taskDistributor)
 }
 
-func runTaskProcessor(redisOpt asynq.RedisClientOpt) {
-	processor := worker.NewRedisTaskProcessor(redisOpt)
+func runTaskProcessor(redisOpt asynq.RedisClientOpt, publisher events.Publisher) {
+	processor := worker.NewRedisTaskProcessor(redisOpt, publisher)
 	log.Println("starting task processor")
 	if err := processor.Start(); err != nil {
 		log.Fatalf("cannot start task processor: %v", err)
