@@ -1,0 +1,92 @@
+syntax = "proto3";
+
+package ledger.v1;
+
+import "google/protobuf/timestamp.proto";
+
+// go_package tells protoc-gen-go where the generated code lives and its import path.
+option go_package = "github.com/1morshed1/distributed-ledger-engine/internal/pb;pb";
+
+// LedgerService is the internal, type-safe API for service-to-service calls
+// (e.g. the Spark job asking for a balance, Airflow triggering reconciliation).
+// gRPC + protobuf give code-generated clients and ~10x smaller/faster payloads
+// than JSON.
+service LedgerService {
+  rpc CreateAccount(CreateAccountRequest) returns (Account);
+  rpc GetAccount(GetAccountRequest) returns (Account);
+  rpc Transfer(TransferRequest) returns (TransferResult);
+  rpc ListTransfers(ListTransfersRequest) returns (ListTransfersResponse);
+  rpc GetAccountBalance(GetBalanceRequest) returns (BalanceResponse); // used by Spark
+}
+
+message Account {
+  int64 id = 1;
+  string owner = 2;
+  int64 balance = 3;            // smallest currency unit (cents)
+  string currency = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+message Entry {
+  int64 id = 1;
+  int64 account_id = 2;
+  int64 amount = 3;             // +credit / -debit
+  google.protobuf.Timestamp created_at = 4;
+}
+
+message Transfer {
+  int64 id = 1;
+  int64 from_account_id = 2;
+  int64 to_account_id = 3;
+  int64 amount = 4;
+  string idempotency_key = 5;
+  string status = 6;
+  google.protobuf.Timestamp created_at = 7;
+}
+
+message CreateAccountRequest {
+  string owner = 1;
+  string currency = 2;
+}
+
+message GetAccountRequest {
+  int64 id = 1;
+}
+
+message TransferRequest {
+  int64 from_account_id = 1;
+  int64 to_account_id = 2;
+  int64 amount = 3;
+  string currency = 4;
+  string idempotency_key = 5;  // caller-supplied UUID
+}
+
+message TransferResult {
+  Transfer transfer = 1;
+  Account from_account = 2;
+  Account to_account = 3;
+  Entry from_entry = 4;
+  Entry to_entry = 5;
+}
+
+message ListTransfersRequest {
+  int64 account_id = 1;
+  int64 after_id = 2;          // cursor (0 = first page)
+  int32 page_size = 3;
+}
+
+message ListTransfersResponse {
+  repeated Transfer transfers = 1;
+  int64 next_after_id = 2;
+}
+
+message GetBalanceRequest {
+  int64 account_id = 1;
+}
+
+message BalanceResponse {
+  int64 account_id = 1;
+  int64 balance = 2;
+  string currency = 3;
+}

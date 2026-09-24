@@ -3,7 +3,9 @@
 
 DB_URL=postgresql://ledger:secret@localhost:5433/ledger?sslmode=disable
 
-.PHONY: up down psql sqlc migrateup migratedown newmigration test server tidy
+.PHONY: up down psql sqlc migrateup migratedown newmigration test server tidy proto
+
+MODULE=github.com/1morshed1/distributed-ledger-engine
 
 up:            ## start postgres + redis
 	docker compose up -d
@@ -25,6 +27,12 @@ newmigration:  ## make NAME=xxx -> new migration pair
 
 sqlc:          ## regenerate type-safe db code
 	sqlc generate
+
+proto:         ## regenerate gRPC/protobuf code into internal/pb
+	protoc --proto_path=proto --proto_path=$(HOME)/.local/include \
+		--go_out=. --go_opt=module=$(MODULE) \
+		--go-grpc_out=. --go-grpc_opt=module=$(MODULE) \
+		proto/ledger.proto
 
 test:          ## run tests with coverage
 	go test -v -cover ./...
