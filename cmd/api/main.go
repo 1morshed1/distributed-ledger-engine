@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/1morshed1/distributed-ledger-engine/internal/api"
+	"github.com/1morshed1/distributed-ledger-engine/internal/cache"
 	db "github.com/1morshed1/distributed-ledger-engine/internal/db"
 	"github.com/1morshed1/distributed-ledger-engine/internal/util"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -24,7 +25,13 @@ func main() {
 
 	store := db.NewStore(connPool)
 
-	server, err := api.NewServer(config, store)
+	balanceCache := cache.NewRedisCache(config.RedisAddress)
+	if err := balanceCache.Ping(context.Background()); err != nil {
+		log.Fatalf("cannot connect to redis: %v", err)
+	}
+	defer balanceCache.Close()
+
+	server, err := api.NewServer(config, store, balanceCache)
 	if err != nil {
 		log.Fatalf("cannot create server: %v", err)
 	}

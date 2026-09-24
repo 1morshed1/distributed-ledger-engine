@@ -82,6 +82,14 @@ func (server *Server) createTransfer(ctx *gin.Context) {
 		return
 	}
 
+	// Write-through: push both updated balances into the cache so the next
+	// balance read is served from Redis. Best-effort — a cache failure must not
+	// fail a committed transfer (the DB is the source of truth).
+	if server.cache != nil {
+		_ = server.cache.SetBalance(ctx, result.FromAccount.ID, result.FromAccount.Balance)
+		_ = server.cache.SetBalance(ctx, result.ToAccount.ID, result.ToAccount.Balance)
+	}
+
 	ctx.JSON(http.StatusCreated, result)
 }
 

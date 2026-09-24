@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 
+	"github.com/1morshed1/distributed-ledger-engine/internal/cache"
 	db "github.com/1morshed1/distributed-ledger-engine/internal/db"
 	"github.com/1morshed1/distributed-ledger-engine/internal/token"
 	"github.com/1morshed1/distributed-ledger-engine/internal/util"
@@ -11,22 +12,23 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-// Server holds everything HTTP handlers need: config, the DB store, the token
-// maker, and the Gin router.
+// Server holds everything HTTP handlers need: config, the DB store, the balance
+// cache, the token maker, and the Gin router.
 type Server struct {
 	config     util.Config
 	store      db.Store
+	cache      cache.BalanceCache
 	tokenMaker token.Maker
 	router     *gin.Engine
 }
 
-func NewServer(config util.Config, store db.Store) (*Server, error) {
+func NewServer(config util.Config, store db.Store, balanceCache cache.BalanceCache) (*Server, error) {
 	tokenMaker, err := token.NewPasetoMaker(config.TokenSymmetricKey)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create token maker: %w", err)
 	}
 
-	server := &Server{config: config, store: store, tokenMaker: tokenMaker}
+	server := &Server{config: config, store: store, cache: balanceCache, tokenMaker: tokenMaker}
 
 	// Register the custom `currency` binding tag.
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
@@ -49,6 +51,7 @@ func (server *Server) setupRouter() {
 	auth := router.Group("/").Use(authMiddleware(server.tokenMaker))
 	auth.POST("/api/v1/accounts", server.createAccount)
 	auth.GET("/api/v1/accounts/:id", server.getAccount)
+	auth.GET("/api/v1/accounts/:id/balance", server.getAccountBalance)
 	auth.GET("/api/v1/accounts", server.listAccounts)
 	auth.POST("/api/v1/transfers", server.createTransfer)
 	auth.GET("/api/v1/transfers", server.listTransfers)
