@@ -13,3 +13,9 @@ vendor/
 .idea/
 .vscode/
 .DS_Store
+
+# python
+spark-fraud-detector/.venv/
+__pycache__/
+*.pyc
+spark-fraud-detector/jars/

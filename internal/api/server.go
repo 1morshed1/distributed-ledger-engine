@@ -57,6 +57,7 @@ func (server *Server) setupRouter() {
 	auth.GET("/api/v1/accounts", server.listAccounts)
 	auth.POST("/api/v1/transfers", server.createTransfer)
 	auth.GET("/api/v1/transfers", server.listTransfers)
+	auth.GET("/api/v1/fraud-alerts", server.listFraudAlerts)
 
 	server.router = router
 }

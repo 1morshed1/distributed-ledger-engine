@@ -32,6 +32,11 @@ type Querier interface {
 	GetUser(ctx context.Context, username string) (User, error)
 	ListAccounts(ctx context.Context, arg ListAccountsParams) ([]Account, error)
 	ListEntries(ctx context.Context, arg ListEntriesParams) ([]Entry, error)
+	// Cursor-based: pass last-seen id as @after_id (0 for first page). Newest first
+	// by id is achieved by scanning descending; we page with id < after_id when a
+	// cursor is given, else from the top.
+	ListFraudAlerts(ctx context.Context, arg ListFraudAlertsParams) ([]FraudAlert, error)
+	ListFraudAlertsByAccount(ctx context.Context, arg ListFraudAlertsByAccountParams) ([]FraudAlert, error)
 	// Cursor-based pagination: pass the last-seen id as @after_id (0 for first page).
 	// Offset pagination degrades at scale; keyset stays O(log n) on the index.
 	ListTransfers(ctx context.Context, arg ListTransfersParams) ([]Transfer, error)

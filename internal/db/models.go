@@ -25,6 +25,17 @@ type Entry struct {
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
 
+type FraudAlert struct {
+	ID          int64              `json:"id"`
+	AccountID   int64              `json:"account_id"`
+	Rule        string             `json:"rule"`
+	Severity    string             `json:"severity"`
+	Detail      []byte             `json:"detail"`
+	WindowStart pgtype.Timestamptz `json:"window_start"`
+	WindowEnd   pgtype.Timestamptz `json:"window_end"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+}
+
 type Session struct {
 	ID           uuid.UUID          `json:"id"`
 	Username     string             `json:"username"`
