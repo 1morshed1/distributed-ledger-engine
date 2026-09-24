@@ -106,7 +106,13 @@ db/
 docs/phase-1/         # teaching write-ups (read these!)
 ```
 
-## Docs (read in order)
+## Start here
+
+- [`docs/00-architecture.md`](docs/00-architecture.md) — the whole system in one map: data flow, invariants, repo layout
+- [`docs/api-reference.md`](docs/api-reference.md) — every REST + gRPC endpoint, request/response, status codes
+- [`RUNBOOK.md`](RUNBOOK.md) — ports, start/stop, running each phase, troubleshooting
+
+## Phase deep-dives (read in order)
 
 1. [`docs/phase-1/01-ledger-design.md`](docs/phase-1/01-ledger-design.md) — money as integers, double-entry, idempotency, sqlc, keyset pagination
 2. [`docs/phase-1/02-transaction-and-deadlocks.md`](docs/phase-1/02-transaction-and-deadlocks.md) — the transfer transaction, lock ordering, race conditions
