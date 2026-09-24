@@ -7,8 +7,10 @@ import (
 
 	db "github.com/1morshed1/distributed-ledger-engine/internal/db"
 	"github.com/1morshed1/distributed-ledger-engine/internal/token"
+	"github.com/1morshed1/distributed-ledger-engine/internal/worker"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/hibiken/asynq"
 )
 
 const idempotencyHeaderKey = "Idempotency-Key"
@@ -88,6 +90,21 @@ func (server *Server) createTransfer(ctx *gin.Context) {
 	if server.cache != nil {
 		_ = server.cache.SetBalance(ctx, result.FromAccount.ID, result.FromAccount.Balance)
 		_ = server.cache.SetBalance(ctx, result.ToAccount.ID, result.ToAccount.Balance)
+	}
+
+	// Enqueue async follow-up (notification etc.) on the critical queue with
+	// retries. This never blocks the response — the transfer already committed.
+	if server.taskDistributor != nil {
+		_ = server.taskDistributor.DistributeTaskTransferNotification(ctx,
+			&worker.TransferNotificationPayload{
+				TransferID:    result.Transfer.ID,
+				FromAccountID: result.Transfer.FromAccountID,
+				ToAccountID:   result.Transfer.ToAccountID,
+				Amount:        result.Transfer.Amount,
+			},
+			asynq.MaxRetry(3),
+			asynq.Queue(worker.QueueCritical),
+		)
 	}
 
 	ctx.JSON(http.StatusCreated, result)

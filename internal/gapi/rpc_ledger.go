@@ -7,7 +7,9 @@ import (
 	db "github.com/1morshed1/distributed-ledger-engine/internal/db"
 	"github.com/1morshed1/distributed-ledger-engine/internal/pb"
 	"github.com/1morshed1/distributed-ledger-engine/internal/util"
+	"github.com/1morshed1/distributed-ledger-engine/internal/worker"
 	"github.com/google/uuid"
+	"github.com/hibiken/asynq"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -85,6 +87,20 @@ func (s *Server) Transfer(ctx context.Context, req *pb.TransferRequest) (*pb.Tra
 	if s.cache != nil {
 		_ = s.cache.SetBalance(ctx, result.FromAccount.ID, result.FromAccount.Balance)
 		_ = s.cache.SetBalance(ctx, result.ToAccount.ID, result.ToAccount.Balance)
+	}
+
+	// Async follow-up, best-effort.
+	if s.taskDistributor != nil {
+		_ = s.taskDistributor.DistributeTaskTransferNotification(ctx,
+			&worker.TransferNotificationPayload{
+				TransferID:    result.Transfer.ID,
+				FromAccountID: result.Transfer.FromAccountID,
+				ToAccountID:   result.Transfer.ToAccountID,
+				Amount:        result.Transfer.Amount,
+			},
+			asynq.MaxRetry(3),
+			asynq.Queue(worker.QueueCritical),
+		)
 	}
 
 	return &pb.TransferResult{

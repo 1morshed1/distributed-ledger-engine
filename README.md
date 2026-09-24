@@ -11,9 +11,9 @@ Built in phases (see [`plan.md`](plan.md)). **Phase 1 (core ledger) is done.**
 
 | Phase | Scope                                             | State |
 |-------|---------------------------------------------------|-------|
-| 1     | Go ledger: Postgres, transfers, auth, REST API    | ✅ core done |
-| 1b    | gRPC service, Redis cache, Asynq async tasks       | ⬜ next |
-| 2     | Kafka event stream                                 | ⬜ |
+| 1     | Go ledger: Postgres, transfers, auth, REST API    | ✅ done |
+| 1b    | gRPC service, Redis cache, Asynq async tasks       | ✅ done |
+| 2     | Kafka event stream                                 | ⬜ next |
 | 3     | Spark Structured Streaming fraud detection (PySpark)| ⬜ |
 | 4     | Airflow nightly reconciliation + monthly rollup    | ⬜ |
 | 5     | Terraform + Kubernetes + CI/CD (local-first)       | ⬜ |
@@ -111,6 +111,8 @@ docs/phase-1/         # teaching write-ups (read these!)
 1. [`docs/phase-1/01-ledger-design.md`](docs/phase-1/01-ledger-design.md) — money as integers, double-entry, idempotency, sqlc, keyset pagination
 2. [`docs/phase-1/02-transaction-and-deadlocks.md`](docs/phase-1/02-transaction-and-deadlocks.md) — the transfer transaction, lock ordering, race conditions
 3. [`docs/phase-1/03-api-and-auth.md`](docs/phase-1/03-api-and-auth.md) — REST API, PASETO auth, error → status mapping
+4. [`docs/phase-1/04-grpc.md`](docs/phase-1/04-grpc.md) — gRPC LedgerService, protobuf codegen, status codes
+5. [`docs/phase-1/05-async-tasks.md`](docs/phase-1/05-async-tasks.md) — Asynq queue, retries, priorities
 
 ## Testing
 

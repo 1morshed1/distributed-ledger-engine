@@ -11,6 +11,8 @@ import (
 	"github.com/1morshed1/distributed-ledger-engine/internal/gapi"
 	"github.com/1morshed1/distributed-ledger-engine/internal/pb"
 	"github.com/1morshed1/distributed-ledger-engine/internal/util"
+	"github.com/1morshed1/distributed-ledger-engine/internal/worker"
+	"github.com/hibiken/asynq"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -36,14 +38,27 @@ func main() {
 	}
 	defer balanceCache.Close()
 
+	// Asynq shares the same Redis. Distributor enqueues; processor consumes.
+	redisOpt := asynq.RedisClientOpt{Addr: config.RedisAddress}
+	taskDistributor := worker.NewRedisTaskDistributor(redisOpt)
+	go runTaskProcessor(redisOpt)
+
 	// gRPC server runs in its own goroutine; HTTP server blocks main.
-	go runGRPCServer(config, store, balanceCache)
-	runHTTPServer(config, store, balanceCache)
+	go runGRPCServer(config, store, balanceCache, taskDistributor)
+	runHTTPServer(config, store, balanceCache, taskDistributor)
 }
 
-func runGRPCServer(config util.Config, store db.Store, balanceCache cache.BalanceCache) {
+func runTaskProcessor(redisOpt asynq.RedisClientOpt) {
+	processor := worker.NewRedisTaskProcessor(redisOpt)
+	log.Println("starting task processor")
+	if err := processor.Start(); err != nil {
+		log.Fatalf("cannot start task processor: %v", err)
+	}
+}
+
+func runGRPCServer(config util.Config, store db.Store, balanceCache cache.BalanceCache, taskDistributor worker.TaskDistributor) {
 	grpcServer := grpc.NewServer()
-	pb.RegisterLedgerServiceServer(grpcServer, gapi.NewServer(config, store, balanceCache))
+	pb.RegisterLedgerServiceServer(grpcServer, gapi.NewServer(config, store, balanceCache, taskDistributor))
 	reflection.Register(grpcServer) // lets grpcurl/ghz introspect without the .proto
 
 	listener, err := net.Listen("tcp", config.GRPCServerAddress)
@@ -56,8 +71,8 @@ func runGRPCServer(config util.Config, store db.Store, balanceCache cache.Balanc
 	}
 }
 
-func runHTTPServer(config util.Config, store db.Store, balanceCache cache.BalanceCache) {
-	server, err := api.NewServer(config, store, balanceCache)
+func runHTTPServer(config util.Config, store db.Store, balanceCache cache.BalanceCache, taskDistributor worker.TaskDistributor) {
+	server, err := api.NewServer(config, store, balanceCache, taskDistributor)
 	if err != nil {
 		log.Fatalf("cannot create http server: %v", err)
 	}
