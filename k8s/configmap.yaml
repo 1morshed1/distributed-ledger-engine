@@ -1,0 +1,19 @@
+# Non-secret runtime config. Viper reads these as env vars (they override app.env).
+# For a local kind cluster, backing services (Postgres/Redis/Kafka) run in
+# docker-compose on the host; host.docker.internal resolves to the host from kind
+# nodes. Point these at in-cluster services when you deploy those too.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ledger-config
+  namespace: ledger
+data:
+  ENVIRONMENT: "production"
+  HTTP_SERVER_ADDRESS: "0.0.0.0:8080"
+  GRPC_SERVER_ADDRESS: "0.0.0.0:9090"
+  REDIS_ADDRESS: "host.docker.internal:6380"
+  KAFKA_BROKERS: "host.docker.internal:9092"
+  KAFKA_TOPIC_TRANSACTION_EVENTS: "transaction-events"
+  OTLP_ENDPOINT: "host.docker.internal:4318"
+  ACCESS_TOKEN_DURATION: "15m"
+  REFRESH_TOKEN_DURATION: "24h"

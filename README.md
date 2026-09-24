@@ -16,7 +16,7 @@ Built in phases (see [`plan.md`](plan.md)). **Phase 1 (core ledger) is done.**
 | 2     | Kafka event stream                                 | ✅ done |
 | 3     | Spark Structured Streaming fraud detection (PySpark)| ✅ done |
 | 4     | Airflow nightly reconciliation + monthly rollup    | ✅ done |
-| 5     | Terraform + Kubernetes + CI/CD (local-first)       | ⬜ next |
+| 5     | Observability, Docker+CI, Kubernetes, Terraform    | ✅ done |
 
 ### Phase 1 core — what works today
 
@@ -116,6 +116,8 @@ docs/phase-1/         # teaching write-ups (read these!)
 6. [`docs/phase-2/01-kafka-events.md`](docs/phase-2/01-kafka-events.md) — Kafka event stream, protobuf schema, producer guarantees
 7. [`docs/phase-3/01-spark-fraud-detection.md`](docs/phase-3/01-spark-fraud-detection.md) — PySpark streaming, 3 fraud rules, stateful Welford, sinks
 8. [`docs/phase-4/01-airflow-reconciliation.md`](docs/phase-4/01-airflow-reconciliation.md) — Airflow DAGs, reconciliation invariant, monthly rollup, S3 reports
+9. [`docs/phase-5/01-observability.md`](docs/phase-5/01-observability.md) — Prometheus, Jaeger/OTel, Loki; metrics/traces/logs
+10. [`docs/phase-5/02-deployment.md`](docs/phase-5/02-deployment.md) — Dockerfile, GitHub Actions CI, Kubernetes manifests, Terraform
 
 ## Testing
 

@@ -1,0 +1,11 @@
+.git
+.github
+bin/
+spark-fraud-detector/
+airflow/
+observability/
+terraform/
+k8s/
+docs/
+*.md
+.gitignore

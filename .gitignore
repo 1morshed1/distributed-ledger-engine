@@ -19,3 +19,14 @@ spark-fraud-detector/.venv/
 __pycache__/
 *.pyc
 spark-fraud-detector/jars/
+
+# terraform
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfbackend
+crash.log
+
+# docker
+# (image built locally as ledger-api:ci)
