@@ -15,8 +15,8 @@ Built in phases (see [`plan.md`](plan.md)). **Phase 1 (core ledger) is done.**
 | 1b    | gRPC service, Redis cache, Asynq async tasks       | ✅ done |
 | 2     | Kafka event stream                                 | ✅ done |
 | 3     | Spark Structured Streaming fraud detection (PySpark)| ✅ done |
-| 4     | Airflow nightly reconciliation + monthly rollup    | ⬜ next |
-| 5     | Terraform + Kubernetes + CI/CD (local-first)       | ⬜ |
+| 4     | Airflow nightly reconciliation + monthly rollup    | ✅ done |
+| 5     | Terraform + Kubernetes + CI/CD (local-first)       | ⬜ next |
 
 ### Phase 1 core — what works today
 
@@ -115,6 +115,7 @@ docs/phase-1/         # teaching write-ups (read these!)
 5. [`docs/phase-1/05-async-tasks.md`](docs/phase-1/05-async-tasks.md) — Asynq queue, retries, priorities
 6. [`docs/phase-2/01-kafka-events.md`](docs/phase-2/01-kafka-events.md) — Kafka event stream, protobuf schema, producer guarantees
 7. [`docs/phase-3/01-spark-fraud-detection.md`](docs/phase-3/01-spark-fraud-detection.md) — PySpark streaming, 3 fraud rules, stateful Welford, sinks
+8. [`docs/phase-4/01-airflow-reconciliation.md`](docs/phase-4/01-airflow-reconciliation.md) — Airflow DAGs, reconciliation invariant, monthly rollup, S3 reports
 
 ## Testing
 

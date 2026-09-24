@@ -36,6 +36,16 @@ type FraudAlert struct {
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 }
 
+type MonthlySummary struct {
+	ID          int64              `json:"id"`
+	AccountID   int64              `json:"account_id"`
+	Month       pgtype.Date        `json:"month"`
+	TxCount     int64              `json:"tx_count"`
+	TotalVolume int64              `json:"total_volume"`
+	AvgAmount   pgtype.Numeric     `json:"avg_amount"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+}
+
 type Session struct {
 	ID           uuid.UUID          `json:"id"`
 	Username     string             `json:"username"`
