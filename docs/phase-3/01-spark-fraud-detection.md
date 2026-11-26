@@ -85,7 +85,7 @@ parsed.withWatermark(...).groupBy(window("event_time","5 minutes"),"from_account
   .agg(sum("amount").alias("outflow")).filter(col("outflow") > THRESHOLD)
 ```
 
-The plan's stricter form is "> 80% of the account balance". That needs the live
+The spec's stricter form is "> 80% of the account balance". That needs the live
 balance joined in — do it in `foreachBatch` with a JDBC/gRPC balance lookup
 (`GetAccountBalance`). We ship the absolute-threshold version; the balance-relative
 upgrade is a noted TODO. **Verified**: no false positive when outflow stayed under

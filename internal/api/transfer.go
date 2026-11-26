@@ -149,7 +149,7 @@ func (server *Server) validAccount(ctx *gin.Context, accountID int64, currency s
 
 type listTransfersRequest struct {
 	AccountID int64 `form:"account_id" binding:"required,min=1"`
-	AfterID   int64 `form:"after_id" binding:"min=0"`      // cursor: last id seen, 0 for first page
+	AfterID   int64 `form:"after_id" binding:"min=0"` // cursor: last id seen, 0 for first page
 	PageSize  int32 `form:"page_size" binding:"required,min=1,max=100"`
 }
 

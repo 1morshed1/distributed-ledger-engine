@@ -13,10 +13,10 @@ import (
 // lives in one place.
 type Server struct {
 	pb.UnimplementedLedgerServiceServer // forward-compatible: new RPCs won't break builds
-	config          util.Config
-	store           db.Store
-	cache           cache.BalanceCache
-	taskDistributor worker.TaskDistributor
+	config                              util.Config
+	store                               db.Store
+	cache                               cache.BalanceCache
+	taskDistributor                     worker.TaskDistributor
 }
 
 func NewServer(config util.Config, store db.Store, balanceCache cache.BalanceCache, taskDistributor worker.TaskDistributor) *Server {

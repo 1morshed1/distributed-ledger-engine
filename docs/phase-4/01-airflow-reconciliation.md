@@ -73,7 +73,7 @@ volume 59674, avg 2983.70 (its 50000 anomaly included).
 - **Airflow**: official image, **LocalExecutor**, its own Postgres metadata DB
   (kept separate from the ledger DB on purpose). Webserver on **:8088** (8080 is
   our Go API). `_PIP_ADDITIONAL_REQUIREMENTS` adds `boto3`/`psycopg2` at boot.
-- **Object store**: the plan says S3; locally we wanted **MinIO**. But MinIO
+- **Object store**: the spec says S3; locally we wanted **MinIO**. But MinIO
   deleted its Docker Hub images and this host's Docker can't auth to quay.io, and
   LocalStack's image now needs a Pro license. So we use **`adobe/s3mock`** — a
   license-free S3 mock on Docker Hub. Because the DAG speaks S3 through **boto3

@@ -108,4 +108,4 @@ Redis write-through cache • Asynq async tasks. All tested.
 
 **Next: Phase 2 — Kafka.** The `transfer-events` stream. The Asynq notification
 task is the natural place to also publish the Kafka event with guaranteed
-delivery (or we introduce a transactional outbox). See `plan.md` Phase 2.
+delivery (or we introduce a transactional outbox). See the original spec Phase 2.

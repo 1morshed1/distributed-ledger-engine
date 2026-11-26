@@ -111,4 +111,4 @@ That's an index seek — same speed on page 1 and page 100,000. That's why
 ## Next
 
 `02-transaction-tx.md` — the transfer transaction, row locking, and the deadlock
-trap the plan calls "the single most common mistake in financial backend code."
+trap the spec calls "the single most common mistake in financial backend code."

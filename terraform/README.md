@@ -19,7 +19,7 @@ locally on docker-compose. Apply it only when you want a real cloud deployment
 | `outputs.tf`      | Endpoints for wiring the app / kubectl                |
 | `dev.tfvars`      | Dev sizing (free-tier where possible)                 |
 
-## Cost controls (per the plan, keep dev < \$50/mo)
+## Cost controls (per the spec, keep dev < \$50/mo)
 
 - SPOT EKS nodes (60-70% cheaper)
 - `db.t3.micro` RDS (free-tier eligible), `cache.t3.micro` Redis

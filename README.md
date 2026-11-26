@@ -1,9 +1,12 @@
 # Distributed Ledger Engine
 
+[![CI](https://github.com/1morshed1/distributed-ledger-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/1morshed1/distributed-ledger-engine/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A production-realistic financial ledger: double-entry accounting with ACID
 transfers, real-time analytics, fraud detection, and batch reconciliation.
 
-Built in phases (see [`plan.md`](plan.md)). **Phase 1 (core ledger) is done.**
+Built in phases (see the original spec). **Phase 1 (core ledger) is done.**
 
 ---
 
@@ -130,3 +133,7 @@ docs/phase-1/         # teaching write-ups (read these!)
 ```bash
 make test    # needs the docker stack up (integration tests hit real Postgres)
 ```
+
+## License
+
+[MIT](LICENSE)

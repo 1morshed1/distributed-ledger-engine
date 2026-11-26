@@ -73,7 +73,7 @@ Declarative AWS stack, one concern per file, using the community
 - **S3** reports bucket (versioned, 90-day → Glacier lifecycle)
 - **S3 remote state** + DynamoDB lock in `backend.tf`
 
-Cost controls per the plan keep dev under ~$50/mo (spot, micro instances, single
+Cost controls per the spec keep dev under ~$50/mo (spot, micro instances, single
 NAT, `terraform destroy` when idle). `terraform` isn't installed here and this is
 deliberately **not applied** — see `terraform/README.md` for the apply workflow.
 
