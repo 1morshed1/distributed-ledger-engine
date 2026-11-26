@@ -6,7 +6,9 @@
 A production-realistic financial ledger: double-entry accounting with ACID
 transfers, real-time analytics, fraud detection, and batch reconciliation.
 
-Built in phases (see the original spec). **Phase 1 (core ledger) is done.**
+Built in five phases — **all complete**: the core ledger plus gRPC, Kafka events,
+Spark fraud detection, Airflow reconciliation, and full observability/deployment.
+See [`docs/00-architecture.md`](docs/00-architecture.md) for the whole system.
 
 ---
 
@@ -21,7 +23,7 @@ Built in phases (see the original spec). **Phase 1 (core ledger) is done.**
 | 4     | Airflow nightly reconciliation + monthly rollup    | ✅ done |
 | 5     | Observability, Docker+CI, Kubernetes, Terraform    | ✅ done |
 
-### Phase 1 core — what works today
+### Core ledger — what it guarantees
 
 Double-entry ledger • deadlock-safe concurrent transfers • idempotent transfers •
 overdraft protection • PASETO auth (access + revocable refresh tokens) •
@@ -30,7 +32,7 @@ error mapping. All covered by passing tests + an end-to-end smoke test.
 
 ---
 
-## Architecture (Phase 1)
+## Core ledger architecture
 
 ```
 client ──HTTP──> Gin API (internal/api)
@@ -43,7 +45,9 @@ client ──HTTP──> Gin API (internal/api)
 ```
 
 Money is stored as `BIGINT` cents — never floats. Every balance change writes an
-immutable `entries` row, so any balance is recomputable from history.
+immutable `entries` row, so any balance is recomputable from history. The full
+system (gRPC, Kafka, Spark, Airflow, observability) is diagrammed in
+[`docs/00-architecture.md`](docs/00-architecture.md).
 
 ---
 
@@ -106,7 +110,7 @@ internal/
 db/
   migration/          # golang-migrate SQL (up/down)
   query/              # sqlc source queries
-docs/phase-1/         # teaching write-ups (read these!)
+docs/phase-1/         # design write-ups (one folder per phase)
 ```
 
 ## Start here
